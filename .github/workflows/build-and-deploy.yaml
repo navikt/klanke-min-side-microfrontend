@@ -1,0 +1,86 @@
+name: Build and deploy
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - dev-*
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+
+    outputs:
+      upload_url: ${{ steps.extract-manifest-url.outputs.upload_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies
+        shell: bash
+        env:
+          BUN_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+        run: |
+          echo -e "\n[install.scopes]\n\"@navikt\" = { token = \"$BUN_AUTH_TOKEN\", url = \"https://npm.pkg.github.com/\" }" >> bunfig.toml
+          bun install --frozen-lockfile
+
+      - name: Build
+        shell: bash
+        env:
+          VERSION: ${{ github.sha }}
+        run: bun run build
+      
+      - name: Test frontend
+        run: bun test
+
+      - name: CDN Upload
+        id: cdn-upload
+        uses: nais/deploy/actions/cdn-upload/v2@master
+        with:
+          team: klage
+          source: ./dist/
+          destination: klanke-min-side-microfrontend
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+
+      - name: Extract manifest URL
+        id: extract-manifest-url
+        run: |
+          files="${{ steps.cdn-upload.outputs.uploaded }}"
+          first_file=$(echo $files | cut -d',' -f1)
+          echo "upload_url=https://cdn.nav.no/$first_file" >> $GITHUB_OUTPUT
+
+  update-manifest-dev-gcp:
+    name: Update manifest in dev
+    uses: navikt/tms-deploy/.github/workflows/oppdater-mikrofrontend-manifest-v2.yaml@main
+    needs: build
+    with:
+      cluster: dev-gcp
+      id: klanke-min-side-microfrontend
+      url: ${{needs.build.outputs.upload_url}}
+      commitmsg: ${{ github.event.head_commit.message}}
+    secrets: inherit
+
+  update-manifest-prod-gcp:
+    name: Update manifest in prod
+    if: github.ref == 'refs/heads/main'
+    uses: navikt/tms-deploy/.github/workflows/oppdater-mikrofrontend-manifest-v2.yaml@main
+    needs: build
+    with:
+      cluster: prod-gcp
+      id: klanke-min-side-microfrontend
+      url: ${{needs.build.outputs.upload_url}}
+      commitmsg: ${{ github.event.head_commit.message}}
+    secrets: inherit
