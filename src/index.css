@@ -1,19 +1,4 @@
-html,
-body {
-  height: 100%;
-}
+@import "tailwindcss";
+@import "@navikt/ds-css" layer(base);
 
-body {
-  background-color: var(--a-bg-subtle);
-  font-family: sans-serif;
-}
-
-main {
-  margin: auto;
-  width: fit-content;
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr;
-  align-items: center;
-  justify-content: center;
-}
+@config '../tailwind.config.ts';

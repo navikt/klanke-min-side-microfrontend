@@ -1,39 +1,44 @@
+// biome-ignore lint/correctness/noNodejsModules: Vite config
 import { resolve } from 'node:path';
 import terser from '@rollup/plugin-terser';
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { rollupImportMapPlugin } from 'rollup-plugin-import-map';
+import { defineConfig } from 'vite';
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import importmap from './importmap.json';
 
-export default () => ({
+// biome-ignore lint/style/noDefaultExport: Vite config requires default export
+export default defineConfig({
   plugins: [
+    tailwindcss(),
     tsconfigPaths(),
     react(),
-    terser(),
+    cssInjectedByJsPlugin(),
     {
-      ...rollupImportMapPlugin([importmap]),
+      ...rollupImportMapPlugin([
+        {
+          imports: {
+            react: 'https://www.nav.no/tms-min-side-assets/react/18/esm/index.js',
+            'react-dom': 'https://www.nav.no/tms-min-side-assets/react-dom/18/esm/index.js',
+          },
+        },
+      ]),
       enforce: 'pre',
       apply: 'build',
     },
+    terser(),
   ],
   build: {
     rollupOptions: {
       input: resolve(__dirname, 'src/microfrontend.tsx'),
       preserveEntrySignatures: 'exports-only',
       output: {
-        entryFileNames: 'klanke-min-side-microfrontend.[hash].js',
+        assetFileNames: 'mine-klager-microfrontend.[hash][extname]',
+        entryFileNames: 'mine-klager-microfrontend.[hash].js',
         format: 'esm',
       },
     },
   },
-  server: {
-    port: 3000,
-    proxy: {
-      '/api': {
-        target: 'https://kabal-api.intern.dev.nav.no',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
-  },
+  server: { port: 3001 },
 });

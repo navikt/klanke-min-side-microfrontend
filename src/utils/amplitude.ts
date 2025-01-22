@@ -10,8 +10,7 @@ export const initAmplitude = () => {
   });
 };
 
-//TODO: komponent må fylles ut med et identifiserende navn for microfrontend
-//Default er at navnet på appen blir benyttet ved replace av "klanke-min-side-microfrontend"
+// Default er at navnet på appen blir benyttet ved replace av "mine-klager-microfrontend"
 export const logNavigereEvent = () => {
-  track('navigere', { komponent: 'klanke-min-side-microfrontend' });
+  track('navigere', { komponent: 'mine-klager-microfrontend' });
 };

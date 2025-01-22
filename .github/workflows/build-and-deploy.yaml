@@ -51,7 +51,8 @@ jobs:
         with:
           team: klage
           source: ./dist/
-          destination: klanke-min-side-microfrontend
+          destination: mine-klager-microfrontend
+          source_keep_parent_name: false
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
 
@@ -64,23 +65,23 @@ jobs:
 
   update-manifest-dev-gcp:
     name: Update manifest in dev
+    secrets: inherit
     uses: navikt/tms-deploy/.github/workflows/oppdater-mikrofrontend-manifest-v2.yaml@main
     needs: build
     with:
       cluster: dev-gcp
-      id: klanke-min-side-microfrontend
+      id: mine-klager-microfrontend
       url: ${{needs.build.outputs.upload_url}}
       commitmsg: ${{ github.event.head_commit.message}}
-    secrets: inherit
 
   update-manifest-prod-gcp:
     name: Update manifest in prod
+    secrets: inherit
     if: github.ref == 'refs/heads/main'
     uses: navikt/tms-deploy/.github/workflows/oppdater-mikrofrontend-manifest-v2.yaml@main
     needs: build
     with:
       cluster: prod-gcp
-      id: klanke-min-side-microfrontend
+      id: mine-klager-microfrontend
       url: ${{needs.build.outputs.upload_url}}
       commitmsg: ${{ github.event.head_commit.message}}
-    secrets: inherit
