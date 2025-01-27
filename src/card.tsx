@@ -1,9 +1,10 @@
-import { Icon } from '@app/icons/icon';
+import { CardIcon } from '@app/icons/icon';
 import { Language } from '@app/language';
 import type { Translation } from '@app/language';
 import { logNavigereEvent } from '@app/utils/amplitude';
 import { ChevronRightIcon } from '@navikt/aksel-icons';
-import { BodyLong, HStack, type HStackProps, Heading, VStack } from '@navikt/ds-react';
+import { BodyLong, HStack, Heading, VStack } from '@navikt/ds-react';
+import styled from 'styled-components';
 
 interface CardProps {
   lang: Language;
@@ -11,10 +12,52 @@ interface CardProps {
 }
 
 export const PreviewCard = ({ lang, href }: CardProps) => (
-  <Container className={getPreviewClasses()} href={href}>
+  <PreviewContainer href={href}>
     <CardContent lang={lang} />
-  </Container>
+  </PreviewContainer>
 );
+
+const StyledChevron = styled(ChevronRightIcon)`
+  height: 100%;
+  width: 24px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease-in-out;
+`;
+
+const ContainerStack = styled.a`
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: var(--a-border-radius-large);
+  background-color: var(--a-bg-default);
+  color: var(--a-text-default);
+  box-shadow: var(--a-shadow-xsmall);
+  padding: 20px;
+
+  &:hover {
+    box-shadow: var(--a-shadow-small);
+
+    .mine-klager-card-heading {
+      text-decoration: underline;
+    }
+
+    ${StyledChevron} {
+      transform: translateX(3px);
+    }
+  }
+  
+  @media (max-width: 647px) {
+    padding: 16px;
+  }
+`;
+
+const PreviewContainer = styled(ContainerStack)`    
+  @container preview (max-width: 647px) {
+    padding: 16px;
+  }
+`;
 
 export const Card = ({ lang, href }: CardProps) => (
   <Container href={href}>
@@ -29,16 +72,9 @@ interface ContainerProps {
 }
 
 const Container = ({ className = '', href, children }: ContainerProps) => (
-  <HStack
-    as="a"
-    href={href}
-    wrap={false}
-    align="center"
-    className={`group cursor-pointer rounded-large bg-bg-default text-text-default shadow-xsmall hover:shadow-small ${className}`}
-    onClick={() => logNavigereEvent()}
-  >
+  <ContainerStack href={href} className={className} onClick={() => logNavigereEvent()}>
     {children}
-  </HStack>
+  </ContainerStack>
 );
 
 interface CardContentProps {
@@ -47,44 +83,29 @@ interface CardContentProps {
 
 const CardContent = ({ lang }: CardContentProps) => (
   <>
-    <HStack gap="5" align="center" flexGrow="1" wrap={false}>
-      <Icon className="w-14 shrink-0" />
+    <Content gap="5" align="center" wrap={false}>
+      <CardIcon />
 
-      <VStack flexShrink="1">
-        <Heading level="3" size="small" className="group-hover:underline">
+      <InnerContent>
+        <Heading level="3" size="small" className="mine-klager-card-heading">
           {HEADING[lang]}
         </Heading>
 
         <BodyLong size="medium">{DESCRIPTION[lang]}</BodyLong>
-      </VStack>
-    </HStack>
+      </InnerContent>
+    </Content>
 
-    <ChevronRightIcon className="h-full w-6 shrink-0 transition-transform duration-200 ease-in-out group-hover:translate-x-[3px]" />
+    <StyledChevron />
   </>
 );
 
-const PADDING: HStackProps['padding'] = {
-  xs: '4',
-  sm: '4',
-  md: '5',
-  lg: '5',
-  xl: '5',
-  '2xl': '5',
-};
+const Content = styled(HStack)`
+  flex-grow: 1;
+`;
 
-const getPreviewClasses = () => {
-  if (PADDING === undefined) {
-    return '';
-  }
-
-  if (typeof PADDING === 'string') {
-    return PADDING;
-  }
-
-  return `p-${PADDING.xs} ${Object.entries(PADDING)
-    .map(([key, value]) => `@${key}:p-${value}`)
-    .join(' ')}`;
-};
+const InnerContent = styled(VStack)`
+  flex-shrink: 1;
+`;
 
 const HEADING: Translation = {
   [Language.NB]: 'Mine klager og anker',
