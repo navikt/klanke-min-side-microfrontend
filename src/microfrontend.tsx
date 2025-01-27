@@ -1,4 +1,3 @@
-import '@app/index.css';
 import { Card } from '@app/card';
 import { DEFAULT_LANGUAGE, type Language, useLanguage } from '@app/language';
 

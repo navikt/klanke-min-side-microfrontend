@@ -1,8 +1,10 @@
+import { styled } from 'styled-components';
+
 interface IconProps {
   className?: string;
 }
 
-export const Icon = ({ className }: IconProps) => (
+const Icon = ({ className }: IconProps) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" className={className}>
     <title>Mine klager</title>
 
@@ -20,3 +22,8 @@ export const Icon = ({ className }: IconProps) => (
     />
   </svg>
 );
+
+export const CardIcon = styled(Icon)`
+  width: 56px;
+  flex-shrink: 0;
+`;

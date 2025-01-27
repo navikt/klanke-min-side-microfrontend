@@ -1,9 +1,9 @@
 import { PreviewCard } from '@app/card';
-import '@app/index.css';
 import { Language, type Translation } from '@app/language';
-import { Box, HStack, Heading, Tag, VStack } from '@navikt/ds-react';
+import { HStack, Heading, Tag, VStack } from '@navikt/ds-react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { styled } from 'styled-components';
 
 const container = document.getElementById('root');
 
@@ -20,37 +20,70 @@ interface PreviewProps {
 
 const Preview = ({ name, width }: PreviewProps) => (
   <VStack gap="0" align="center" justify="center">
-    <Heading level="1" size="xsmall" spacing className="flex gap-2">
+    <StyledHeading level="1" size="xsmall" spacing>
       <span>{name}</span>
 
       <Tag size="small" variant="info-filled">
         {width}px
       </Tag>
-    </Heading>
+    </StyledHeading>
 
     <HStack gap="4" align="start" justify="center">
       {Object.values(Language).map((lang) => (
-        <VStack key={lang} as={Box} gap="2" width={`${width}px`} className="@container">
-          <Tag size="small" variant="success" className="mx-auto w-fit">
+        <CardContainer key={lang} $width={width}>
+          <StyledTag size="small" variant="success">
             {LANGUAGE_LABELS[lang]}
-          </Tag>
+          </StyledTag>
 
           <PreviewCard lang={lang} href="/" />
-        </VStack>
+        </CardContainer>
       ))}
     </HStack>
   </VStack>
 );
 
+const StyledHeading = styled(Heading)`
+  display: flex;
+  gap: 8px;
+`;
+
+const StyledTag = styled(Tag)`
+  margin-left: auto;
+  margin-right: auto;
+  width: fit-content;
+`;
+
+interface VStackContainerProps {
+  $width: number;
+}
+
+const CardContainer = styled.section<VStackContainerProps>`
+  display: flex;
+  flex-direction: column;
+  container-type: inline-size;
+  container-name: preview;
+  width: ${({ $width }) => `${$width}px`};
+  gap: 8px;
+`;
+
+const StyledMain = styled.main`
+  display: flex;
+  flex-direction: column;
+  gap: 96px;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+`;
+
 root.render(
   <StrictMode>
-    <main className="flex h-full w-full flex-col gap-24 p-4">
+    <StyledMain>
       <Preview name="Mobil retningslinje" width={288} />
 
       <Preview name="Desktop retningslinje" width={468} />
 
       <Preview name="Desktop maks" width={912} />
-    </main>
+    </StyledMain>
   </StrictMode>,
 );
 

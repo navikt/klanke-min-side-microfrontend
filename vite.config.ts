@@ -1,7 +1,6 @@
 // biome-ignore lint/correctness/noNodejsModules: Vite config
 import { resolve } from 'node:path';
 import terser from '@rollup/plugin-terser';
-import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { rollupImportMapPlugin } from 'rollup-plugin-import-map';
 import { defineConfig } from 'vite';
@@ -11,7 +10,6 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 // biome-ignore lint/style/noDefaultExport: Vite config requires default export
 export default defineConfig({
   plugins: [
-    tailwindcss(),
     tsconfigPaths(),
     react(),
     cssInjectedByJsPlugin(),
