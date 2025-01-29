@@ -1,5 +1,5 @@
-import {getAmplitudeInstance} from "@navikt/nav-dekoratoren-moduler";
+import { getAmplitudeInstance } from '@navikt/nav-dekoratoren-moduler';
 
-const logger = getAmplitudeInstance("dekoratoren");
+const logger = getAmplitudeInstance('dekoratoren');
 
-export const logNavigereEvent = () => logger("navigere", {komponent: 'mine-klager-microfrontend'});
+export const logNavigereEvent = () => logger('navigere', { komponent: 'mine-klager-microfrontend' });
